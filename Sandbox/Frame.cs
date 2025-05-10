@@ -32,7 +32,7 @@ public class Frame
 
     private static void DoWithLimit(Action action)
     {
-        const int ticksPerSecond = 100;
+        const int ticksPerSecond = 125;
         const int limitInMilliseconds = 1000 / ticksPerSecond;
         
         var stopwatch = new Stopwatch();
