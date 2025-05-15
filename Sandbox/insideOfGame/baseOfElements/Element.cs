@@ -2,14 +2,20 @@ using SFML.Graphics;
 
 namespace Sandbox.insideOfGame.baseOfElements;
 
-public abstract class Element(IList<IList<Element>> parentCells) : IClonable<Element>
+public abstract class Element(IList<IList<Element>> parentCells, IList<IList<Color>> parentDrawableCells) : IClonable<Element>
 {
-    public virtual bool Movable => true;
-
     protected IList<IList<Element>> ParentCells { get; } = parentCells;
-    public abstract void DoPhysics(int x, int y);
+    protected IList<IList<Color>> ParentDrawableCells { get; } = parentDrawableCells;
+    protected abstract void CalculateSelfPhysics(int x, int y);
+    protected abstract void DrawPixel(int x, int y, Color color);
 
-    public abstract Color InsideColor { get; }
+    public void CalculateSelfLogic(int x, int y)
+    {
+        DrawPixel(x, y, InsideColor);
+        CalculateSelfPhysics(x, y);
+    }
+
+    protected abstract Color InsideColor { get; }
     public virtual Color OutsideColor => Color.White;
 
     private bool _isAirUnder;

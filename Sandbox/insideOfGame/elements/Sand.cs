@@ -4,7 +4,7 @@ using SFML.Graphics;
 
 namespace Sandbox.insideOfGame.elements;
 
-public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
+public class Sand(IList<IList<Element>> parentCells, IList<IList<Color>> parentDrawableCells) : Element(parentCells, parentDrawableCells)
 {
     #region Color
     private static readonly IList<Color> VariantsOfColors = new List<Color>
@@ -15,30 +15,35 @@ public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
         new Color(170, 170, 0)
     }.AsReadOnly();
 
-    public override Color InsideColor { get; } =
+    protected override Color InsideColor { get; } =
         VariantsOfColors[RandomNumberGenerator.GetInt32(0, VariantsOfColors.Count)];
     public override Color OutsideColor => VariantsOfColors[1];
     #endregion
 
-    #region Physics
-    public override void DoPhysics(int x, int y)
+    #region Logic
+    protected override void CalculateSelfPhysics(int x, int y)
     {
         if (y + 1 >= Grid.SizeY)
         {
             return;
         }
-        
-        Grid.CheckAndTellAboutUpperElement(x, y);
     
-        if (!TryMoveSandDown(x, y) && !IsAirUnder)
+        if (!TryMoveSandDown(x, y))
         {
             MoveSandLeftOrRight(x, y);
         }
+        
+        Grid.CheckAndTellAboutUpperElement(x, y);
+    }
+
+    protected override void DrawPixel(int x, int y, Color color)
+    {
+        ParentDrawableCells[y][x] = color;
     }
 
     private bool TryMoveSandDown(int x, int y)
     {
-        if (ParentCells[y + 1][x] is not Air)
+        if (ParentCells[y + 1][x] is UnmovableElement || ParentCells[y + 1][x] is Sand)
         {
             return false;
         }
@@ -52,6 +57,11 @@ public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
 
     private void MoveSandLeftOrRight(int x, int y)
     {
+        if (IsAirUnder)
+        {
+            return;
+        }
+        
         int randomNumber = RandomNumberGenerator.GetInt32(0, 2);
         
         if (randomNumber == 0)
@@ -77,7 +87,7 @@ public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
             return false;
         }
 
-        if (ParentCells[y + 1][x - 1] is not Air)
+        if (ParentCells[y + 1][x - 1] is UnmovableElement || ParentCells[y + 1][x - 1] is Sand)
         {
             return false;
         }
@@ -96,7 +106,7 @@ public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
             return false;
         }
 
-        if (ParentCells[y + 1][x + 1] is not Air)
+        if (ParentCells[y + 1][x + 1] is UnmovableElement || ParentCells[y + 1][x + 1] is Sand)
         {
             return false;
         }
@@ -111,6 +121,6 @@ public class Sand(IList<IList<Element>> parentCells) : Element(parentCells)
 
     public override Sand Clone()
     {
-        return new Sand(ParentCells);
+        return new Sand(ParentCells, ParentDrawableCells);
     }
 }

@@ -8,14 +8,15 @@ using SFML.Window;
 
 namespace Sandbox.insideOfGame;
 
-public sealed class Grid : Drawable,
+public sealed class Grid :
+    Drawable,
     Nextable,
     IDisposable
 {
     #region Positioning
     private const int PositionY = 100;
 
-    private const int CellSize = 5;
+    private const int CellSize = 6;
     public static readonly int SizeX = (int)Frame.Window.Size.X / CellSize;
     public static readonly int SizeY = ((int)Frame.Window.Size.Y - PositionY * 2 + PositionY / 2) / CellSize;
     #endregion
@@ -23,6 +24,9 @@ public sealed class Grid : Drawable,
     private static readonly Brush LocalBrush = new Brush();
 
     #region Cells
+    private static readonly List<IList<Color>> FrameOfDrawableCells = CreateColorCells();
+    
+    private static readonly List<IList<Color>> DrawableCells = CreateColorCells();
     private static readonly List<IList<Element>> Cells = CreateCells();
 
     private static List<IList<Element>> CreateCells()
@@ -33,7 +37,21 @@ public sealed class Grid : Drawable,
             cells.Add([]);
             for (var x = 0; x < SizeX; x++)
             {
-                cells[y].Add(new Air(cells));
+                cells[y].Add(new Air(cells, DrawableCells));
+            }
+        }
+        return cells;
+    }
+
+    private static List<IList<Color>> CreateColorCells()
+    {
+        var cells = new List<IList<Color>>();
+        for (var y = 0; y < SizeY; y++)
+        {
+            cells.Add([]);
+            for (var x = 0; x < SizeX; x++)
+            {
+                cells[y].Add(new Color(255, 255, 255));
             }
         }
         return cells;
@@ -50,8 +68,8 @@ public sealed class Grid : Drawable,
 
         var elements = new List<Element>
         {
-            new Sand(Cells),
-            new Stone(Cells),
+            new Sand(Cells, DrawableCells),
+            new Stone(Cells, DrawableCells),
         };
 
         const int distanceBetweenButtons = 10;
@@ -72,12 +90,17 @@ public sealed class Grid : Drawable,
 
     public void Draw(RenderTarget target, RenderStates states)
     {
-        for (var y = 0; y < SizeY; y++)
+        for (int y = SizeY - 1; y >= 0; y--)
         {
             for (var x = 0; x < SizeX; x++)
             {
+                Color currentColor = FrameOfDrawableCells[y][x];
+                if (currentColor == Color.White)
+                {
+                    continue;
+                }
                 _cellBody.Position = new Vector2f(x * CellSize, y * CellSize + PositionY);
-                _cellBody.FillColor = Cells[y][x].InsideColor;
+                _cellBody.FillColor = currentColor;
                 target.Draw(_cellBody);
             }
         }
@@ -89,6 +112,14 @@ public sealed class Grid : Drawable,
     {
         LocalBrush.Next();
         CalculatePhysics();
+        
+        for (var y = 0; y < SizeY; y++)
+        {
+            for (var x = 0; x < SizeX; x++)
+            {
+                FrameOfDrawableCells[y][x] = DrawableCells[y][x];
+            }
+        }
     }
 
     private static void CalculatePhysics()
@@ -101,14 +132,14 @@ public sealed class Grid : Drawable,
             {
                 for (var x = 0; x < SizeX; x++)
                 {
-                    Cells[y][x].DoPhysics(x, y);
+                    Cells[y][x].CalculateSelfLogic(x, y);
                 }
             }
             else
             {
                 for (int x = SizeX - 1; x >= 0; x--)
                 {
-                    Cells[y][x].DoPhysics(x, y);
+                    Cells[y][x].CalculateSelfLogic(x, y);
                 }
             }
         }
@@ -128,13 +159,16 @@ public sealed class Grid : Drawable,
             return;
         }
 
-        for (int i = y - 1; i > 0; i--)
+        const int minimumDistanceToElements = 6;
+        const int maximumDistanceToElements = 56;
+
+        for (int i = y - 1; i >= Math.Abs(y - RandomNumberGenerator.GetInt32(minimumDistanceToElements, maximumDistanceToElements)); i--)
         {
             if (Cells[i][x] is UnmovableElement)
             {
                 return;
             }
-            
+
             if (Cells[i][x] is not Sand)
             {
                 continue;
@@ -154,7 +188,7 @@ public sealed class Grid : Drawable,
     private sealed class Brush : Nextable,
         IDisposable
     {
-        public Element ElementForPaint = new Air(Cells);
+        public Element ElementForPaint = new Air(Cells, DrawableCells);
 
         private static int _radiusOfBrush = 1;
         private static int _radiusMultiply = 1;
@@ -288,7 +322,7 @@ public sealed class Grid : Drawable,
             Cells[y][x] = condition switch
             {
                 true when Cells[y][x] is Air => ElementForPaint.Clone(),
-                false when Cells[y][x] is not Air => new Air(Cells),
+                false when Cells[y][x] is not Air => new Air(Cells, DrawableCells),
                 _ => Cells[y][x]
             };
         }

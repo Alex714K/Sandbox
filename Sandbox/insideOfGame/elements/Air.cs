@@ -3,16 +3,21 @@ using SFML.Graphics;
 
 namespace Sandbox.insideOfGame.elements;
 
-public class Air(IList<IList<Element>> parentCells) : Element(parentCells)
+public class Air(IList<IList<Element>> parentCells, IList<IList<Color>> parentDrawableCells) : Element(parentCells, parentDrawableCells)
 {
-    public override void DoPhysics(int x, int y)
+    protected override void CalculateSelfPhysics(int x, int y)
     {
     }
 
-    public override Color InsideColor => Color.White;
+    protected override void DrawPixel(int x, int y, Color color)
+    {
+        ParentDrawableCells[y][x] = color;
+    }
+
+    protected override Color InsideColor => Color.White;
 
     public override Air Clone()
     {
-        return new Air(ParentCells);
+        return new Air(ParentCells, ParentDrawableCells);
     }
 }
