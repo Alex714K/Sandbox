@@ -3,7 +3,7 @@ using SFML.Graphics;
 
 namespace Sandbox;
 
-public class Game : Drawable, Nextable
+public sealed class Game : Drawable, INextable, IDisposable
 {
     private readonly Grid _grid = new Grid();
 
@@ -15,5 +15,10 @@ public class Game : Drawable, Nextable
     public void Next()
     {
         _grid.Next();
+    }
+
+    public void Dispose()
+    {
+        _grid.Dispose();
     }
 }

@@ -5,7 +5,7 @@ using SFML.Window;
 
 namespace Sandbox;
 
-public sealed class Frame
+public sealed class Frame : IDisposable
 {
     public static readonly RenderWindow Window = new RenderWindow(
         new VideoMode(1920, 1200), "Sandbox");
@@ -76,5 +76,10 @@ public sealed class Frame
     private static void OnClose(object? sender, EventArgs e)
     {
         Window.Close();
+    }
+
+    public void Dispose()
+    {
+        _game.Dispose();
     }
 }

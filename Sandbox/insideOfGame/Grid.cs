@@ -10,7 +10,7 @@ namespace Sandbox.insideOfGame;
 
 public sealed class Grid :
     Drawable,
-    Nextable,
+    INextable,
     IDisposable
 {
     #region Positioning
@@ -185,7 +185,7 @@ public sealed class Grid :
     }
 
     #region Brush
-    private sealed class Brush : Nextable,
+    private sealed class Brush : INextable,
         IDisposable
     {
         public Element ElementForPaint = new Air(Cells, DrawableCells);

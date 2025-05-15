@@ -8,7 +8,7 @@ public class ButtonBuilder
     private string _text = "";
     private Color _color = Color.White;
     private Vector2f _position = new Vector2f(0, 0);
-    public Vector2f Size { get; private set; } = new Vector2f(100, 100);
+    private Vector2f Size { get; set; } = new Vector2f(100, 100);
 
     private ButtonBuilder()
     {
