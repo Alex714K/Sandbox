@@ -1,7 +1,7 @@
 namespace Sandbox;
 
 // ReSharper disable once InconsistentNaming
-public interface Nextable
+public interface INextable
 {
     public void Next();
 }
