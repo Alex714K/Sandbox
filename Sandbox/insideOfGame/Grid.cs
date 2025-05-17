@@ -111,7 +111,7 @@ public sealed class Grid :
     public void Next()
     {
         LocalBrush.Next();
-        CalculatePhysics();
+        CalculateLogic();
         
         for (var y = 0; y < SizeY; y++)
         {
@@ -122,7 +122,7 @@ public sealed class Grid :
         }
     }
 
-    private static void CalculatePhysics()
+    private static void CalculateLogic()
     {
         const int numberFor50PercentChance = 2;
 
