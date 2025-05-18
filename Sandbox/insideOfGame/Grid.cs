@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using Sandbox.buttonCore;
 using Sandbox.insideOfGame.baseOfElements;
 using Sandbox.insideOfGame.elements;
 using SFML.Graphics;
@@ -20,6 +19,13 @@ public sealed class Grid :
     public static readonly int SizeX = (int)Frame.Window.Size.X / CellSize;
     public static readonly int SizeY = ((int)Frame.Window.Size.Y - PositionY * 2 + PositionY / 2) / CellSize;
     #endregion
+    
+    private readonly RectangleShape _backgroundShape = new  RectangleShape
+    {
+        Position = new Vector2f(0, PositionY),
+        Size = new Vector2f(SizeX * CellSize, SizeY * CellSize),
+        FillColor = Color.White,
+    };
 
     private static readonly Brush LocalBrush = new Brush();
 
@@ -28,6 +34,15 @@ public sealed class Grid :
     
     private static readonly List<IList<Color>> DrawableCells = CreateColorCells();
     private static readonly List<IList<Element>> Cells = CreateCells();
+    
+    internal static class ElementsForCloning
+    {
+        internal static readonly List<Element> OriginalElements =
+        [
+            new Sand(Cells, DrawableCells),
+            new Stone(Cells, DrawableCells)
+        ];
+    }
 
     private static List<IList<Element>> CreateCells()
     {
@@ -60,36 +75,10 @@ public sealed class Grid :
     private readonly RectangleShape _cellBody = new RectangleShape(new Vector2f(CellSize, CellSize));
     #endregion
 
-    #region Buttons
-    private readonly List<Button> _buttons = CreateButtons();
-
-    private static List<Button> CreateButtons()
-    {
-
-        var elements = new List<Element>
-        {
-            new Sand(Cells, DrawableCells),
-            new Stone(Cells, DrawableCells),
-        };
-
-        const int distanceBetweenButtons = 10;
-
-        const int width = 120;
-        const int height = 60;
-
-        return elements.Select((element, i) =>
-            ButtonBuilder.Create()
-                .SetColor(element.OutsideColor)
-                .SetText(element.GetType().Name)
-                .SetPosition(new Vector2f(distanceBetweenButtons * (i + 1) + width * i, 20))
-                .SetSize(new Vector2f(width, height))
-                .Build(() => LocalBrush.ElementForPaint = element)
-        ).ToList();
-    }
-    #endregion
-
     public void Draw(RenderTarget target, RenderStates states)
     {
+        target.Draw(_backgroundShape);
+        
         for (int y = SizeY - 1; y >= 0; y--)
         {
             for (var x = 0; x < SizeX; x++)
@@ -104,8 +93,6 @@ public sealed class Grid :
                 target.Draw(_cellBody);
             }
         }
-
-        _buttons.ForEach(target.Draw);
     }
 
     public void Next()
@@ -181,10 +168,14 @@ public sealed class Grid :
     public void Dispose()
     {
         _cellBody.Dispose();
-        _buttons.ForEach(button => button.Dispose());
     }
 
     #region Brush
+    public static void SetElementForPaint(Element element)
+    {
+        LocalBrush.ElementForPaint = element;
+    }
+    
     private sealed class Brush : INextable,
         IDisposable
     {

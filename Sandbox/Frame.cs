@@ -10,15 +10,11 @@ public sealed class Frame : IDisposable
     public static readonly RenderWindow Window = new RenderWindow(
         new VideoMode(1920, 1200), "Sandbox");
     
-    private static readonly RectangleShape BackgroundShape = new RectangleShape(new Vector2f(Window.Size.X, Window.Size.Y));
-    
     private readonly Game _game = new Game();
     
     public Frame()
     {
         Window.Closed += OnClose;
-        
-        BackgroundShape.FillColor = Color.White;
     }
 
     public void Start()
@@ -64,8 +60,6 @@ public sealed class Frame : IDisposable
         while (Window.IsOpen)
         {
             Window.Clear();
-            
-            Window.Draw(BackgroundShape);
             
             Window.Draw(_game);
             
