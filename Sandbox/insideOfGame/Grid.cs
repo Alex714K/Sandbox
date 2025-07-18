@@ -12,6 +12,12 @@ public sealed class Grid :
     INextable,
     IDisposable
 {
+    public Grid()
+    {
+        // If didn't setted, then an element in brush will have null in parentCells or parentDrawableCells
+        SetElementForPaint(new Air(Cells, DrawableCells));
+    }
+    
     #region Positioning
     private const int PositionY = 100;
 
