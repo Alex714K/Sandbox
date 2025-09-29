@@ -6,8 +6,10 @@ namespace Sandbox;
 
 public sealed class Frame : IDisposable
 {
+    // public static readonly RenderWindow Window = new RenderWindow(
+    //     new VideoMode(1920, 1200), "Sandbox");
     public static readonly RenderWindow Window = new RenderWindow(
-        new VideoMode(1920, 1200), "Sandbox");
+        VideoMode.DesktopMode, "Sandbox", Styles.Fullscreen);
     
     private readonly Game _game = new Game();
     

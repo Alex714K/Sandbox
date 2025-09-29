@@ -27,7 +27,13 @@ public class Gui : Drawable
                 .SetPosition(new Vector2f(distanceBetweenButtons * (i + 1) + width * i, 20))
                 .SetSize(new Vector2f(width, height))
                 .Build(() => Grid.SetElementForPaint(element))
-        ).ToList();
+        ).Append(
+            ButtonBuilder.Create()
+                .SetColor(Color.White)
+                .SetText("Quit")
+                .SetPosition(new Vector2f(Frame.Window.Size.X - width - 20, 20))
+                .SetSize(new Vector2f(width, height))
+                .Build(() => Frame.Window.Close())).ToList();
     }
     #endregion
     
